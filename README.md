@@ -4,6 +4,10 @@ Zhou Fan (@Evensgn)
 
 Some machine learning exercises on MNIST data set.
 
+## Usage
+Download four MNIST data files (*.gz) from [THE MNIST DATABASE](http://yann.lecun.com/exdb/mnist/).
+Then run the code [read_data.py](read_data.py) to generate pickle file 'data.pkl'.
+
 ## Softmax Regression (SGD)
 **Code:** [mnist_basic.py](mnist_basic.py)
 * Learning Rate: 1e-2
