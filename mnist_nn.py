@@ -42,13 +42,13 @@ def bias_variable(shape):
     initial = tf.constant(0.1, shape = shape)
     return tf.Variable(initial)
 
-L = [num_pixel, 400, 300, 200, 100, 30, 10]
+L = [num_pixel, 580, 400, 300, 200, 100, 30, 10]
 LAYERS = len(L) - 1
 
-learning_rate = 1e-2
+learning_rate = 2e-3
 iterations = 50000
 batch_size = 100
-regular_lambda = 0 #1e-4
+regular_lambda = 1e-4
 
 W = list(range(LAYERS + 1))
 b = list(range(LAYERS + 1))
