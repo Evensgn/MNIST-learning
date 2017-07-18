@@ -49,9 +49,9 @@ L4 = 100
 L5 = 36
 
 learning_rate = 1e-3
-iterations = 10000
+iterations = 20000
 batch_size = 100
-regular_lambda = 1e-7
+regular_lambda = 1e-4
 
 W1 = weight_variable([num_pixel, L1])
 b1 = bias_variable([L1])
