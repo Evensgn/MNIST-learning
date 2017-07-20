@@ -42,33 +42,60 @@ def bias_variable(shape):
     initial = tf.constant(0.1, shape = shape)
     return tf.Variable(initial)
 
-L = [num_pixel, 580, 400, 300, 200, 100, 30, 10]
-LAYERS = len(L) - 1
+def conv2d(x, W):
+    return tf.nn.conv2d(x, W, strides = [1, 1, 1, 1], padding = 'SAME')
+
+def max_pool_2x2(x):
+    return tf.nn.max_pool(x, ksize = [1, 2, 2, 1], strides = [1, 2, 2, 1], padding = 'SAME')
+
+CONV_L = [1, 32, 64]
+CONV_LAYERS = len(CONV_L) - 1
+
+DENSE_L = [7 * 7 * 64, 1024, 10]
+DENSE_LAYERS = len(DENSE_L) - 1
 
 learning_rate = 2e-3
 iterations = 50000
 batch_size = 100
 regular_lambda = 1e-4
+drop_keep_prob = 1.0
 
-W = list(range(LAYERS + 1))
-b = list(range(LAYERS + 1))
-for i in range(LAYERS):
-    W[i + 1] = weight_variable([L[i], L[i + 1]])
-    b[i + 1] = bias_variable([L[i + 1]])
-
+keep_prob = tf.placeholder("float")
 x = tf.placeholder(tf.float32, [None, num_pixel])
-yt = list(range(LAYERS + 1))
-yt[0] = x
-for i in range(LAYERS):
-    yt[i + 1] = tf.nn.relu(tf.matmul(yt[i], W[i + 1]) + b[i + 1])
-y = tf.nn.softmax(yt[LAYERS])
 y_ = tf.placeholder("float", [None, 10])
+
+conv_W = list(range(CONV_LAYERS + 1))
+conv_b = list(range(CONV_LAYERS + 1))
+for i in range(CONV_LAYERS):
+    conv_W[i + 1] = weight_variable([5, 5, CONV_L[i], CONV_L[i + 1]])
+    conv_b[i + 1] = bias_variable([CONV_L[i + 1]])
+
+conv_yt = list(range(CONV_LAYERS + 1))
+conv_yt[0] = tf.reshape(x, [-1, 28, 28, CONV_L[0]])
+for i in range(CONV_LAYERS):
+    conv_yt[i + 1] = tf.nn.relu(conv2d(conv_yt[i], conv_W[i + 1]) + conv_b[i + 1])
+    conv_yt[i + 1] = max_pool_2x2(conv_yt[i + 1])
+
+dense_W = list(range(DENSE_LAYERS + 1))
+dense_b = list(range(DENSE_LAYERS + 1))
+for i in range(DENSE_LAYERS):
+    dense_W[i + 1] = weight_variable([DENSE_L[i], DENSE_L[i + 1]])
+    dense_b[i + 1] = bias_variable([DENSE_L[i + 1]])
+
+dense_yt = list(range(DENSE_LAYERS + 1))
+dense_yt[0] = tf.reshape(conv_yt[CONV_LAYERS], [-1, DENSE_L[0]])
+for i in range(DENSE_LAYERS):
+    if i == DENSE_LAYERS - 1:
+        dense_yt[i] = tf.nn.dropout(dense_yt[i], keep_prob)
+    dense_yt[i + 1] = tf.nn.relu(tf.matmul(dense_yt[i], dense_W[i + 1]) + dense_b[i + 1])
+
+y = tf.nn.softmax(dense_yt[DENSE_LAYERS])
 
 l2_loss = 0
 for i in range(LAYERS):
     l2_loss += tf.nn.l2_loss(W[i + 1]) + tf.nn.l2_loss(b[i + 1])
 
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y)))
+cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
 cost_function = cross_entropy + regular_lambda * l2_loss
 
 train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_function)
@@ -80,6 +107,7 @@ print('Learning Rate:', learning_rate)
 print('Iterations:', iterations)
 print('Batch Size:', batch_size)
 print('Regularization lambda:', regular_lambda)
+print('Dropout Keep Probability:', drop_keep_prob)
 
 sess = tf.Session()
 sess.run(init)
@@ -98,13 +126,13 @@ if False:
 else:
     for i in range(iterations):
         batch_x, batch_y_ = new_batch(batch_size)
-        sess.run(train_step, feed_dict = {x: batch_x, y_: batch_y_})
+        sess.run(train_step, feed_dict = {x: batch_x, y_: batch_y_, keep_prob: drop_keep_prob})
         if i % (iterations // 100) == 0:
             print('Process: {}%'.format((i // (iterations // 100) + 1) * 1))
             correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
             accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-            print('Accuracy:', sess.run(accuracy, feed_dict = {x: test_images, y_: test_labels_ten}))
+            print('Accuracy:', sess.run(accuracy, feed_dict = {x: test_images, y_: test_labels_ten, keep_prob: 1.0}))
 
 correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-print('Accuracy:', sess.run(accuracy, feed_dict = {x: test_images, y_: test_labels_ten}))
+print('Accuracy:', sess.run(accuracy, feed_dict = {x: test_images, y_: test_labels_ten, keep_prob: 1.0}))
