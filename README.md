@@ -9,6 +9,8 @@ Some machine learning exercises on MNIST data set.
 * Then run the code [read_data.py](read_data.py) to generate pickle file `'data.pkl'`.
 * (Optional) Run the code [preprocessing.py](preprocessing.py) to generate pickle file `'data_deskewed.pkl'`.
 
+You can choose which pickle file (raw images or deskewed images, etc.) to use as data input at the beginning of the machine learning code.
+
 ## Softmax Regression (SGD)
 **Code:** [mnist_basic.py](mnist_basic.py)
 
