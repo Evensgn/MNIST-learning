@@ -48,7 +48,7 @@ LAYERS = len(L) - 1
 learning_rate = 2e-3
 iterations = 50000
 batch_size = 100
-regular_lambda = 1e-4
+regular_lambda = 1e-3
 drop_keep_prob = 0.90
 
 W = list(range(LAYERS + 1))
