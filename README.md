@@ -20,7 +20,8 @@ Then run the code [read_data.py](read_data.py) to generate pickle file 'data.pkl
 **Code:** [mnist_nn.py](mnist_nn.py)
 * Network Layers: 784-580-400-300-200-100-30-10
 * Learning Rate: 2e-3
-* Iterations: 50000
+* Iterations: 40000
 * Batch Size: 100
-* Lambda in Regularization: 1e-4
-* Accuracy: 98.3%
+* Lambda in Regularization: 1e-3
+* Dropout Keep Probability: 0.9
+* Accuracy: 98.4%
