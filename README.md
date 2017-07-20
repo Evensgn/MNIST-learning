@@ -47,3 +47,15 @@ Batch Size | 50
 Regularization lambda | 1e-06
 Dropout Keep Probability | 0.5
 **Accuracy** | **99.3%**
+
+Parameter | Value
+----------- | ------
+Preprocessing | Deskewing
+Convolutional Layers | [1, 32, 64]
+Densely Connected Layers|  [3136, 1024, 10]
+Learning Rate | 0.0005
+Iterations | 30000
+Batch Size | 50
+Regularization lambda | 1e-06
+Dropout Keep Probability | 0.5
+**Accuracy** | **99.45%**
