@@ -54,8 +54,8 @@ CONV_LAYERS = len(CONV_L) - 1
 DENSE_L = [7 * 7 * 64, 1024, 10]
 DENSE_LAYERS = len(DENSE_L) - 1
 
-learning_rate = 2e-3
-iterations = 50000
+learning_rate = 2e-5
+iterations = 20000
 batch_size = 100
 regular_lambda = 1e-4
 drop_keep_prob = 1.0
@@ -91,9 +91,57 @@ for i in range(DENSE_LAYERS):
 
 y = tf.nn.softmax(dense_yt[DENSE_LAYERS])
 
+'''
+# Create the model
+# placeholder
+x = tf.placeholder("float", [None, 784])
+y_ = tf.placeholder("float", [None, 10])
+# variables
+W = tf.Variable(tf.zeros([784,10]))
+b = tf.Variable(tf.zeros([10]))
+
+y = tf.nn.softmax(tf.matmul(x,W) + b)
+
+# first convolutinal layer
+w_conv1 = weight_variable([5, 5, 1, 32])
+b_conv1 = bias_variable([32])
+
+x_image = tf.reshape(x, [-1, 28, 28, 1])
+
+h_conv1 = tf.nn.relu(conv2d(x_image, w_conv1) + b_conv1)
+h_pool1 = max_pool_2x2(h_conv1)
+
+# second convolutional layer
+w_conv2 = weight_variable([5, 5, 32, 64])
+b_conv2 = bias_variable([64])
+
+h_conv2 = tf.nn.relu(conv2d(h_pool1, w_conv2) + b_conv2)
+h_pool2 = max_pool_2x2(h_conv2)
+
+# densely connected layer
+w_fc1 = weight_variable([7*7*64, 1024])
+b_fc1 = bias_variable([1024])
+
+h_pool2_flat = tf.reshape(h_pool2, [-1, 7*7*64])
+h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat, w_fc1) + b_fc1)
+
+# dropout
+keep_prob = tf.placeholder("float")
+h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob)
+
+# readout layer
+w_fc2 = weight_variable([1024, 10])
+b_fc2 = bias_variable([10])
+
+y = tf.nn.softmax(tf.matmul(h_fc1_drop, w_fc2) + b_fc2)
+
+'''
+
 l2_loss = 0
-for i in range(LAYERS):
-    l2_loss += tf.nn.l2_loss(W[i + 1]) + tf.nn.l2_loss(b[i + 1])
+for i in range(CONV_LAYERS):
+    l2_loss += tf.nn.l2_loss(conv_W[i + 1]) + tf.nn.l2_loss(conv_b[i + 1])
+for i in range(DENSE_LAYERS):
+    l2_loss += tf.nn.l2_loss(dense_W[i + 1]) + tf.nn.l2_loss(dense_b[i + 1])
 
 cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
 cost_function = cross_entropy + regular_lambda * l2_loss
@@ -102,7 +150,8 @@ train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_func
 init = tf.global_variables_initializer()
 
 print('Start training ...')
-print('Neural Network Layers:', L)
+print('Neural Network Convolutional Layers:', CONV_L)
+print('Neural Network Densely Connected Layers:', DENSE_L)
 print('Learning Rate:', learning_rate)
 print('Iterations:', iterations)
 print('Batch Size:', batch_size)
@@ -121,6 +170,15 @@ def new_batch(batch_size):
         batch_y_[i] = train_labels_ten[batch_idx[i]]
     return batch_x, batch_y_
 
+correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
+accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
+
+def test_accuracy():
+    accuracy_arr = []
+    for i in range(0, test_images.shape[0], 100):
+        accuracy_arr.append(sess.run(accuracy, feed_dict = {x: test_images[i : i + 100], y_: test_labels_ten[i : i + 100], keep_prob: 1.0}))
+    return np.mean(accuracy_arr)
+
 if False:
     sess.run(train_step, feed_dict = {x: train_images, y_: train_labels_ten})
 else:
@@ -128,11 +186,7 @@ else:
         batch_x, batch_y_ = new_batch(batch_size)
         sess.run(train_step, feed_dict = {x: batch_x, y_: batch_y_, keep_prob: drop_keep_prob})
         if i % (iterations // 100) == 0:
+            print('Accuracy:', test_accuracy())
             print('Process: {}%'.format((i // (iterations // 100) + 1) * 1))
-            correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-            accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-            print('Accuracy:', sess.run(accuracy, feed_dict = {x: test_images, y_: test_labels_ten, keep_prob: 1.0}))
 
-correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-print('Accuracy:', sess.run(accuracy, feed_dict = {x: test_images, y_: test_labels_ten, keep_prob: 1.0}))
+print('Accuracy:', test_accuracy())
