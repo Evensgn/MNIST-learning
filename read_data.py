@@ -2,6 +2,7 @@ import gzip
 import numpy as np
 import struct
 import matplotlib.pyplot as plt
+import cv2
 
 GRAY_SCALE_RANGE = 255
 
@@ -22,6 +23,12 @@ def read_labels_from_file(filename):
         index += 1
     print('Read labels :', num_label)
     return labels
+
+def show_large_img(img):
+    f = lambda i, j: img[i // 10, j // 10]
+    imglarge = np.fromfunction(f, (img.shape[0] * 10, img.shape[1] * 10), dtype = np.uint8)        
+    cv2.imshow('Image', imglarge)
+    cv2.waitKey(0)
 
 def read_images_from_file(filename):
     print('Reading images from file \'' + filename + '\' ...')
@@ -50,14 +57,10 @@ def read_images_from_file(filename):
             plt.imshow(img, cmap = 'gray')
             plt.show()
         ## show image using cv2
-        if False and i < 3:
+        if True and i < 3:
             img = np.array(img, dtype = np.uint8)
             img.resize(num_row, num_column)
-            f = lambda i, j: img[i // 10, j // 10]
-            imglarge = np.fromfunction(f, (num_row * 10, num_column * 10), dtype = np.uint8)
-            # imglarge = cv2.copyMakeBorder(imglarge, 30, 30, 30, 30, cv2.BORDER_CONSTANT, value = 255)
-            cv2.imshow('Image Sample', imglarge)
-            cv2.waitKey(0)
+            show_large_img(img)
     print('Read images :', num_image)
     return images, num_pixel
 

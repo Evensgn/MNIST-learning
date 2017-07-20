@@ -5,7 +5,7 @@ GRAY_SCALE_RANGE = 255
 
 import pickle
 
-data_filename = 'data.pkl'
+data_filename = 'data_deskewed.pkl'
 print('Loading data from file \'' + data_filename + '\' ...')
 with open(data_filename, 'rb') as f:
     train_labels = pickle.load(f)
