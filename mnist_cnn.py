@@ -55,7 +55,7 @@ DENSE_L = [7 * 7 * 64, 1024, 10]
 DENSE_LAYERS = len(DENSE_L) - 1
 
 learning_rate = 5e-4
-iterations = 40000
+iterations = 30000
 batch_size = 50
 regular_lambda = 1e-6
 drop_keep_prob = 0.5
