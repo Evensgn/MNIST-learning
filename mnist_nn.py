@@ -70,7 +70,7 @@ y_ = tf.placeholder("float", [None, 10])
 
 l2_loss = 0
 for i in range(LAYERS):
-    l2_loss += tf.nn.l2_loss(W[i + 1]) + tf.nn.l2_loss(b[i + 1])
+    l2_loss += tf.nn.l2_loss(W[i + 1])
 
 cross_entropy = -tf.reduce_sum(y_ * tf.log(y))
 cost_function = cross_entropy + regular_lambda * l2_loss
