@@ -22,13 +22,18 @@ test_images.resize(test_images.size // num_pixel, num_pixel)
 test_labels = np.array(test_labels)
 train_labels = np.array(train_labels)
 
-train_labels_ten = np.zeros((train_labels.size, 10))
-test_labels_ten = np.zeros((test_labels.size, 10))
-for i in range(10):
-    train_labels_ten[:, i] = train_labels == i
-    test_labels_ten[:, i] = test_labels == i
-
 ## normalization
 train_images = train_images / GRAY_SCALE_RANGE
 test_images = test_images / GRAY_SCALE_RANGE
 
+from sklearn import svm, metrics
+
+clf = svm.SVC(gamma = 0.001)
+
+clf.fit(train_images, train_labels)
+
+prediction = clf.predict(test_images)
+
+print("Classification report for classifier %s:\n%s\n"
+	  % (clf, metrics.classification_report(test_labels, prediction)))
+print("Confusion matrix:\n%s" % metrics.confusion_matrix(test_labels, prediction))
