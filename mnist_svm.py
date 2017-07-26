@@ -28,9 +28,10 @@ test_images = test_images / GRAY_SCALE_RANGE
 
 from sklearn import svm, metrics
 
-clf = svm.SVC(gamma = 0.001)
+# clf = svm.SVC(gamma = 0.001)
+clf = svm.SVC(kernel = 'linear')
 
-clf.fit(train_images, train_labels)
+clf.fit(train_images[:1000], train_labels[:1000])
 
 prediction = clf.predict(test_images)
 
