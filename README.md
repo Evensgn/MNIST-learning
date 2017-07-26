@@ -59,3 +59,11 @@ Batch Size | 50
 Regularization lambda | 1e-06
 Dropout Keep Probability | 0.5
 **Accuracy** | **99.45%**
+
+## Support Vector Machine
+
+Parameter | Value
+----------- | ------
+Kernel | linear
+**Accuracy** | **91%**
+
